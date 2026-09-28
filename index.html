@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Chat CSS Studio</title>
+<style>
+:root{--bg:#f4f1f5;--panel:#fff;--ink:#241b2b;--mut:#7b6f85;--line:#e6dfea;--acc:#f2799f;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17131b;--panel:#211b27;--ink:#f1ecf4;--mut:#a297ad;--line:#352d3d}}
+:root[data-theme="dark"]{--bg:#17131b;--panel:#211b27;--ink:#f1ecf4;--mut:#a297ad;--line:#352d3d}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 'Quicksand','Segoe UI',Arial,sans-serif}
+header{padding:14px 18px;display:flex;gap:10px;align-items:center;border-bottom:1px solid var(--line)}
+header h1{font-size:17px;margin:0;flex:1}
+main{display:grid;grid-template-columns:320px 1fr;gap:14px;padding:14px;align-items:start}
+@media(max-width:860px){main{grid-template-columns:1fr}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px}
+.card h2{font-size:12px;letter-spacing:.6px;text-transform:uppercase;color:var(--mut);margin:0 0 10px}
+.row{display:flex;align-items:center;gap:8px;margin:7px 0}
+.row label{flex:1}
+.row input[type=color]{width:38px;height:26px;border:1px solid var(--line);border-radius:6px;padding:0;background:none}
+.row input[type=range]{flex:1.2}
+.row output{width:34px;text-align:right;color:var(--mut);font-size:12px}
+select,input[type=text]{background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:5px 7px;font:inherit;max-width:170px}
+button{background:var(--acc);color:#fff;border:0;border-radius:8px;padding:7px 12px;font:inherit;font-weight:700;cursor:pointer}
+button.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.stack{display:flex;flex-direction:column;gap:14px}
+#stage{border-radius:10px;padding:18px;min-height:460px;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;margin:0 auto;transition:width .2s;max-width:100%}
+.bg-checker{background:conic-gradient(#3a3340 25%,#2c2632 0 50%,#3a3340 0 75%,#2c2632 0) 0 0/24px 24px}
+.bg-dark{background:#111}
+.bg-game{background:linear-gradient(160deg,#1e3a5f,#5b2a86 55%,#e0577f)}
+.bg-light{background:#d9d4de}
+.bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+textarea{width:100%;height:340px;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:10px;font:12px/1.4 ui-monospace,Consolas,monospace;resize:vertical}
+small{color:var(--mut)}
+</style>
+</head>
+<body>
+<header><h1>🎀 Chat CSS Studio <small>· YouTube Live Chat → OBS</small></h1></header>
+<main>
+  <div class="stack">
+    <div class="card"><h2>Màu sắc</h2><div id="colors"></div></div>
+    <div class="card"><h2>Kích thước &amp; chữ</h2><div id="sizes"></div></div>
+    <div class="card"><h2>Animation</h2><div id="anims"></div></div>
+  </div>
+  <div class="stack">
+    <div class="card">
+      <h2>Xem trước</h2>
+      <div class="bar">
+        <button id="replay">▶ Phát lại</button>
+        <button id="add" class="ghost">+ Tin mới</button>
+        <select id="bgsel"><option value="checker">Nền caro</option><option value="dark">Nền đen</option><option value="game">Nền game</option><option value="light">Nền sáng</option></select>
+        <label style="display:flex;align-items:center;gap:6px">Rộng <input type="range" id="w" min="300" max="620" value="440"></label>
+      </div>
+      <div id="stage" class="bg-checker"><div id="chat"></div></div>
+    </div>
+    <div class="card">
+      <h2>CSS cho Browser Source</h2>
+      <div class="bar"><button id="copy">Sao chép CSS</button><button id="reset" class="ghost">Đặt lại</button><small id="msg"></small></div>
+      <textarea id="out" readonly spellcheck="false"></textarea>
+      <small>OBS → Sources → Browser → URL: <code>https://www.youtube.com/live_chat?is_popout=1&amp;v=ID_LIVESTREAM</code> → dán CSS vào "Custom CSS".</small>
+    </div>
+  </div>
+</main>
+<style id="pv"></style>
+<script>
+const DEF={tag:'#f2799f',tagText:'#ffffff',bubble:'#ffffff',bubbleText:'#1e1e1e',yellow:'#ffe58a',blue:'#8fd3e8',ma:'#2fbf8f',mb:'#3aa0e8',
+msg:15,name:12.5,ava:44,dur:.5,font:'Quicksand',anim:'slide',sc:'pop',glow:1,shine:1,ribbon:'🎉 CHÀO MỪNG THÀNH VIÊN MỚI 🎉'};
+const COLORS=[['tag','Name tag'],['tagText','Chữ name tag'],['bubble','Nền bong bóng'],['bubbleText','Chữ tin nhắn'],['yellow','Băng keo vàng'],['blue','Băng keo xanh'],['ma','Member (đầu)'],['mb','Member (cuối)']];
+const SIZES=[['msg','Cỡ chữ tin nhắn',10,26,1],['name','Cỡ chữ tên',9,20,.5],['ava','Kích thước ảnh',28,80,1],['dur','Tốc độ animation (s)',.2,1.4,.1]];
+const KF={
+slide:'0%{opacity:0;transform:translateX(-28px) rotate(-3deg) scale(.92)}60%{opacity:1;transform:translateX(4px) rotate(.5deg) scale(1.02)}100%{opacity:1;transform:none}',
+pop:'0%{opacity:0;transform:scale(.6)}70%{opacity:1;transform:scale(1.06)}100%{opacity:1;transform:scale(1)}',
+fade:'0%{opacity:0;transform:translateY(16px)}100%{opacity:1;transform:none}',
+bounce:'0%{opacity:0;transform:translateY(-40px)}55%{opacity:1;transform:translateY(6px)}75%{transform:translateY(-3px)}100%{opacity:1;transform:none}',
+flip:'0%{opacity:0;transform:perspective(500px) rotateX(-70deg)}100%{opacity:1;transform:perspective(500px) rotateX(0)}'};
+let S={...DEF};
+const $=id=>document.getElementById(id);
+
+function css(full){
+ const s=S,fam=s.font,q=fam.replace(/ /g,'+');
+ const a=s.anim!=='none',sc=s.sc!=='none';
+ let o='';
+ o+=`/* Chat CSS Studio – YouTube Live Chat → OBS */\n@import url('https://fonts.googleapis.com/css2?family=${q}:wght@600;700&display=swap&subset=vietnamese');\n\n`;
+ o+=`:root{--font:'${fam}','Segoe UI',Arial,sans-serif;--tag-bg:${s.tag};--tag-text:${s.tagText};--tape-yellow:${s.yellow};--tape-blue:${s.blue};--bubble-bg:${s.bubble};--bubble-text:${s.bubbleText};--msg-size:${s.msg}px;--name-size:${s.name}px;--avatar-size:${s.ava}px;--member-a:${s.ma};--member-b:${s.mb}}\n\n`;
+ if(full){o+=`html,body{background:rgba(0,0,0,0)!important;margin:0 auto!important;overflow:hidden!important}
+yt-live-chat-renderer{background:transparent!important;font-family:var(--font)!important}
+yt-live-chat-header-renderer,yt-live-chat-message-input-renderer,#input-panel,yt-live-chat-ticker-renderer,yt-live-chat-banner-renderer,#chat-messages>#ticker,#timestamp,#menu,#inline-action-button-container,yt-live-chat-viewer-engagement-message-renderer{display:none!important}
+#item-scroller,yt-live-chat-item-list-renderer #items{overflow:hidden!important;background:transparent!important}
+#item-scroller.yt-live-chat-item-list-renderer{padding:0!important}
+yt-live-chat-item-list-renderer #item-scroller{-webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 14%);mask-image:linear-gradient(to bottom,transparent 0,#000 14%)}\n\n`;}
+ if(a)o+=`@keyframes msg-in{${KF[s.anim]}}\n`;
+ if(sc){o+=`@keyframes sc-pop{0%{opacity:0;transform:translateY(30px) scale(.8)}55%{opacity:1;transform:translateY(-6px) scale(1.04)}100%{opacity:1;transform:none}}\n`;
+  if(s.glow)o+=`@keyframes sc-glow{0%,100%{box-shadow:0 3px 10px rgba(0,0,0,.4),0 0 0 rgba(255,255,255,0)}50%{box-shadow:0 3px 10px rgba(0,0,0,.4),0 0 18px rgba(255,255,255,.75)}}\n`;
+  if(s.shine)o+=`@keyframes shine{0%{transform:translateX(-120%) skewX(-20deg)}60%,100%{transform:translateX(260%) skewX(-20deg)}}\n`;
+  o+=`@keyframes ribbon-bob{0%,100%{transform:rotate(-2deg) translateY(0)}50%{transform:rotate(-2deg) translateY(-2px)}}\n`;}
+ o+=`
+/* ---- Tin nhắn ---- */
+yt-live-chat-text-message-renderer{position:relative!important;display:flex!important;align-items:flex-start!important;padding:12px 12px 6px!important;background:transparent!important;font-family:var(--font)!important;${a?`animation:msg-in ${s.dur}s cubic-bezier(.2,1.2,.4,1) both;`:''}}
+yt-live-chat-text-message-renderer #author-photo{flex:0 0 auto!important;width:var(--avatar-size)!important;height:var(--avatar-size)!important;margin:2px 12px 0 0!important;padding:3px 3px 9px!important;box-sizing:content-box!important;background:#fff!important;border-radius:3px!important;overflow:visible!important;transform:rotate(-6deg);box-shadow:0 2px 6px rgba(0,0,0,.45)}
+yt-live-chat-text-message-renderer #author-photo img{width:100%!important;height:100%!important;object-fit:cover!important;border-radius:1px!important}
+yt-live-chat-text-message-renderer::before{content:"";position:absolute;left:14px;top:8px;width:26px;height:11px;background:var(--tape-blue);opacity:.9;transform:rotate(-38deg);z-index:6;pointer-events:none}
+yt-live-chat-text-message-renderer #content{display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:auto auto!important;justify-items:start!important;align-items:start!important;min-width:0!important;flex:1 1 auto!important;padding:0!important}
+yt-live-chat-text-message-renderer #content>yt-live-chat-author-chip{grid-row:1!important;grid-column:1!important}
+yt-live-chat-text-message-renderer #content>#message{grid-row:2!important;grid-column:1!important}
+yt-live-chat-text-message-renderer #content>#deleted-state{grid-row:3!important;grid-column:1!important}
+yt-live-chat-text-message-renderer yt-live-chat-author-chip{position:relative!important;display:inline-flex!important;align-items:center!important;margin:0 0 -7px 10px!important;padding:3px 12px!important;background:var(--tag-bg)!important;border-radius:3px!important;box-shadow:0 2px 4px rgba(0,0,0,.3);transform:rotate(-1.2deg);z-index:5;max-width:100%}
+yt-live-chat-text-message-renderer yt-live-chat-author-chip::before{content:"";position:absolute;left:-9px;top:-6px;width:20px;height:9px;background:var(--tape-yellow);opacity:.95;transform:rotate(-40deg)}
+yt-live-chat-text-message-renderer #author-name{color:var(--tag-text)!important;font-family:var(--font)!important;font-size:var(--name-size)!important;font-weight:700!important;line-height:1.2!important;letter-spacing:.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+yt-live-chat-text-message-renderer #author-name::after{content:""!important}
+yt-live-chat-text-message-renderer #chip-badges{margin-left:4px!important}
+yt-live-chat-text-message-renderer #chip-badges img,yt-live-chat-text-message-renderer yt-live-chat-author-badge-renderer{height:14px!important;width:14px!important}
+yt-live-chat-text-message-renderer[author-type="owner"] yt-live-chat-author-chip{background:#f2a93b!important}
+yt-live-chat-text-message-renderer[author-type="moderator"] yt-live-chat-author-chip{background:#5b8def!important}
+yt-live-chat-text-message-renderer[author-type="member"] yt-live-chat-author-chip{background:#3fb984!important}
+yt-live-chat-text-message-renderer #message{position:relative!important;z-index:1;display:inline-block!important;max-width:100%;box-sizing:border-box;margin:0!important;padding:14px 22px 10px 16px!important;background:var(--bubble-bg)!important;color:var(--bubble-text)!important;font-family:var(--font)!important;font-size:var(--msg-size)!important;font-weight:700!important;line-height:1.4!important;letter-spacing:.3px;border-radius:14px!important;box-shadow:0 3px 8px rgba(0,0,0,.35);word-break:break-word;overflow:hidden}
+yt-live-chat-text-message-renderer #message::after{content:"";position:absolute;right:0;bottom:0;width:22px;height:22px;background:linear-gradient(135deg,transparent 50%,var(--tape-yellow) 50%);border-radius:0 0 14px 0}
+yt-live-chat-text-message-renderer #message img.emoji,yt-live-chat-text-message-renderer #message .emoji{width:24px!important;height:24px!important;vertical-align:middle;margin:0 1px!important}
+yt-live-chat-text-message-renderer #deleted-state{color:#999!important;font-style:italic}
+
+/* ---- Super Chat & Super Sticker ---- */
+yt-live-chat-paid-message-renderer,yt-live-chat-paid-sticker-renderer{display:block!important;margin:12px 12px 8px!important;font-family:var(--font)!important;${sc?`animation:sc-pop ${(+s.dur+.1).toFixed(1)}s cubic-bezier(.2,1.3,.4,1) both;`:''}}
+yt-live-chat-paid-message-renderer #card,yt-live-chat-paid-sticker-renderer #card{position:relative;border-radius:16px!important;overflow:hidden!important;border:2px solid rgba(255,255,255,.85);box-shadow:0 3px 10px rgba(0,0,0,.4);${sc&&s.glow?'animation:sc-glow 2.4s ease-in-out .6s 3;':''}}
+${sc&&s.shine?`yt-live-chat-paid-message-renderer #card::after,yt-live-chat-paid-sticker-renderer #card::after,yt-live-chat-membership-item-renderer #card::after{content:"";position:absolute;top:0;left:0;width:35%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.45),transparent);animation:shine 2.8s ease-in-out .8s 2;pointer-events:none}\n`:''}yt-live-chat-paid-message-renderer #author-name,yt-live-chat-paid-message-renderer #purchase-amount,yt-live-chat-paid-message-renderer #content #message,yt-live-chat-paid-sticker-renderer #author-name{font-family:var(--font)!important;font-weight:700!important}
+yt-live-chat-paid-message-renderer #header{padding:8px 14px!important}
+yt-live-chat-paid-message-renderer #content{padding:8px 14px 10px!important}
+yt-live-chat-paid-message-renderer #author-photo img,yt-live-chat-membership-item-renderer #author-photo img{border:2px solid #fff;border-radius:50%!important}
+
+/* ---- Welcome member ---- */
+yt-live-chat-membership-item-renderer,yt-live-chat-sponsorships-gift-purchase-announcement-renderer,yt-live-chat-sponsorships-gift-redemption-announcement-renderer{position:relative!important;display:block!important;margin:26px 12px 8px!important;font-family:var(--font)!important;${sc?`animation:sc-pop ${(+s.dur+.1).toFixed(1)}s cubic-bezier(.2,1.3,.4,1) both;`:''}}
+yt-live-chat-membership-item-renderer::before{content:${JSON.stringify(s.ribbon)};position:absolute;top:-16px;left:14px;padding:3px 12px;background:var(--tag-bg);color:#fff;font-family:var(--font);font-size:11.5px;font-weight:700;letter-spacing:.4px;border-radius:4px;box-shadow:0 2px 4px rgba(0,0,0,.3);z-index:5;${sc?'animation:ribbon-bob 2s ease-in-out infinite;':''}}
+yt-live-chat-membership-item-renderer #card,yt-live-chat-sponsorships-gift-purchase-announcement-renderer #card,yt-live-chat-sponsorships-gift-redemption-announcement-renderer #card{position:relative;border-radius:16px!important;overflow:hidden!important;border:2px solid rgba(255,255,255,.85);box-shadow:0 3px 10px rgba(0,0,0,.4)}
+yt-live-chat-membership-item-renderer #header,yt-live-chat-sponsorships-gift-purchase-announcement-renderer #header{background:linear-gradient(120deg,var(--member-a),var(--member-b))!important;padding:10px 14px!important}
+yt-live-chat-membership-item-renderer #header-primary-text,yt-live-chat-membership-item-renderer #header-subtext,yt-live-chat-membership-item-renderer #author-name,yt-live-chat-membership-item-renderer #message{font-family:var(--font)!important;font-weight:700!important}
+`;
+ return o;
+}
+
+const av=(l,c)=>'data:image/svg+xml,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><rect width="40" height="40" fill="${c}"/><text x="20" y="27" font-size="20" text-anchor="middle" fill="#fff" font-family="Arial" font-weight="700">${l}</text></svg>`);
+const MSGS=[['Mochi','','Chào streamer ạ! 💖','#f2799f'],['Bánh Bao','member','Hôm nay chơi game gì thế?','#3fb984'],['Mod Nam','moderator','Nhớ follow kênh nha mọi người ✨','#5b8def'],['Streamer','owner','Cảm ơn cả nhà đã ghé nha!','#f2a93b'],['Kem','','Chat dễ thương quá trời luôn 😍','#b07be8']];
+let n=0;
+const msgHTML=()=>{const m=MSGS[n++%MSGS.length];return `<yt-live-chat-text-message-renderer ${m[1]?`author-type="${m[1]}"`:''}><div id="author-photo"><img src="${av(m[0][0],m[3])}"></div><div id="content"><yt-live-chat-author-chip><span id="author-name">${m[0]}</span></yt-live-chat-author-chip><span id="message">${m[2]}</span></div></yt-live-chat-text-message-renderer>`};
+const scHTML=`<yt-live-chat-paid-message-renderer><div id="card"><div id="header" style="background:#1565c0;color:#fff;display:flex;gap:10px;align-items:center"><div id="author-photo"><img width="36" height="36" src="${av('S','#0d47a1')}"></div><div><div id="author-name">Sao Băng</div><div id="purchase-amount">50.000 ₫</div></div></div><div id="content" style="background:#1e88e5;color:#fff"><div id="message">Ủng hộ streamer nè! 🌟</div></div></div></yt-live-chat-paid-message-renderer>`;
+const mbHTML=`<yt-live-chat-membership-item-renderer><div id="card"><div id="header" style="color:#fff;display:flex;gap:10px;align-items:center"><div id="author-photo"><img width="36" height="36" src="${av('M','#2fbf8f')}"></div><div><div id="header-primary-text" style="font-size:14px">Mây Trắng</div><div id="header-subtext" style="font-size:12px">Chào mừng bạn vào hội thành viên!</div></div></div></div></yt-live-chat-membership-item-renderer>`;
+
+function seed(){n=0;$('chat').innerHTML=msgHTML()+msgHTML()+scHTML+msgHTML()+mbHTML+msgHTML();}
+function update(){$('pv').textContent=css(false);$('out').value=css(true);}
+
+function build(){
+ $('colors').innerHTML=COLORS.map(([k,l])=>`<div class="row"><label>${l}</label><input type="color" data-k="${k}" value="${S[k]}"></div>`).join('');
+ $('sizes').innerHTML=SIZES.map(([k,l,mn,mx,st])=>`<div class="row"><label>${l}</label><input type="range" data-k="${k}" min="${mn}" max="${mx}" step="${st}" value="${S[k]}"><output>${S[k]}</output></div>`).join('')+
+ `<div class="row"><label>Font</label><select data-k="font">${['Quicksand','Nunito','Baloo 2','Be Vietnam Pro','Patrick Hand'].map(f=>`<option ${S.font===f?'selected':''}>${f}</option>`).join('')}</select></div>`;
+ const opt=(arr,v)=>arr.map(([k,l])=>`<option value="${k}" ${v===k?'selected':''}>${l}</option>`).join('');
+ $('anims').innerHTML=`<div class="row"><label>Tin nhắn</label><select data-k="anim">${opt([['slide','Trượt từ trái'],['pop','Phóng to'],['fade','Nổi lên'],['bounce','Nảy xuống'],['flip','Lật'],['none','Không có']],S.anim)}</select></div>
+ <div class="row"><label>Super Chat / Member</label><select data-k="sc">${opt([['pop','Nảy lên'],['none','Không có']],S.sc)}</select></div>
+ <div class="row"><label>Phát sáng viền</label><input type="checkbox" data-k="glow" ${S.glow?'checked':''}></div>
+ <div class="row"><label>Tia sáng quét</label><input type="checkbox" data-k="shine" ${S.shine?'checked':''}></div>
+ <div class="row"><label>Chữ ruy băng</label><input type="text" data-k="ribbon" value="${S.ribbon.replace(/"/g,'&quot;')}"></div>`;
+}
+document.addEventListener('input',e=>{
+ const k=e.target.dataset.k;if(!k)return;
+ const t=e.target;S[k]=t.type==='checkbox'?+t.checked:t.type==='range'?+t.value:t.value;
+ if(t.type==='range'){const o=t.parentNode.querySelector('output');if(o)o.textContent=t.value}
+ update();if(['anim','sc','dur'].includes(k))seed();
+});
+$('replay').onclick=seed;
+$('add').onclick=()=>{const c=$('chat');c.insertAdjacentHTML('beforeend',msgHTML());while(c.children.length>8)c.firstChild.remove()};
+$('bgsel').onchange=e=>$('stage').className='bg-'+e.target.value;
+$('w').oninput=e=>$('stage').style.width=e.target.value+'px';
+$('reset').onclick=()=>{S={...DEF};build();update();seed()};
+$('copy').onclick=async()=>{
+ const t=$('out');
+ try{await navigator.clipboard.writeText(t.value)}catch(_){t.select();document.execCommand('copy')}
+ $('msg').textContent='Đã sao chép ✓';setTimeout(()=>$('msg').textContent='',1800);
+};
+$('stage').style.width='440px';
+build();update();seed();
+</script>
+</body>
+</html>

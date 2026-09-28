@@ -6,7 +6,7 @@ Không cần tự viết CSS từ đầu — chỉ cần chỉnh màu sắc, kí
 
 ## 🎥 Demo
 
-<video src="./km_20260928-2_480p_60f_20260928_211438.mp4" controls width="100%"></video>
+<video src="km_20260928-2_480p_60f_20260928_211438.mp4" controls width="100%"></video>
 
 > Video demo: `km_20260928-2_480p_60f_20260928_211438.mp4`
 

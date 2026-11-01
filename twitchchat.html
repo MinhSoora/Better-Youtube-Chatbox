@@ -25,7 +25,7 @@ button{font:inherit;cursor:pointer;border:1px solid var(--bd);background:var(--c
 button.p{background:var(--ac);border-color:var(--ac);color:#fff}
 .row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:4px 0}
 .row label{flex:1;font-size:14px}.row .v{width:40px;text-align:right;color:var(--mut);font-size:12px}
-.row input[type=range]{width:44%}.row input[type=color]{width:44px;height:28px;border:none;background:none;padding:0}
+.row input[type=range]{width:44%}.row input[type=text]{width:48%;font:inherit;background:var(--bg);color:var(--tx);border:1px solid var(--bd);border-radius:8px;padding:6px}.row input[type=color]{width:44px;height:28px;border:none;background:none;padding:0}
 select,textarea{font:inherit;background:var(--bg);color:var(--tx);border:1px solid var(--bd);border-radius:8px;padding:6px;max-width:48%}
 .sticky{position:sticky;top:calc(env(safe-area-inset-top,0px) + 8px);align-self:start;display:grid;gap:16px}
 #pv{height:430px;overflow:hidden;border-radius:10px;padding:8px;display:flex;flex-direction:column;background:linear-gradient(135deg,#ff4fa3,#6b3fd4 55%,#1fb6ff)}
@@ -81,28 +81,31 @@ ol{margin:0;padding-left:20px;color:var(--mut);font-size:13px}
 </section>
 </main>
 <script>
-var F=['Roboto','Inter','Poppins','Montserrat','Nunito','Open Sans','Oswald','Arial','Segoe UI'];
+var CUSTOM='Font tùy chỉnh';
+var W={'Roboto':'100;300;400;500;700;900','Inter':'100;200;300;400;500;600;700;800;900','Poppins':'100;200;300;400;500;600;700;800;900','Montserrat':'100;200;300;400;500;600;700;800;900','Nunito':'200;300;400;500;600;700;800;900','Open Sans':'300;400;500;600;700;800','Oswald':'200;300;400;500;600;700'};
+var F=['Roboto','Inter','Poppins','Montserrat','Nunito','Open Sans','Oswald','Arial','Segoe UI','Tahoma','Verdana','Impact','Courier New',CUSTOM];
 var sec=[
 ['Chữ và viền',1,[['outline','Hiện viền chữ','check'],['osz','Độ dày viền (px)','range',0,4,.5],['ocl','Màu viền','color']]],
+['Font tùy chỉnh (chọn "Font tùy chỉnh" trong các ô font)',0,[['cf','Tên font (Google Fonts hoặc font cài trong máy)','text','Ví dụ: Bebas Neue'],['cu','Link file font .woff2/.ttf hoặc link CSS (tùy chọn)','text','https://…']]],
 ['Avatar',0,[['av','Hiện avatar','check'],['avs','Cỡ avatar (px)','range',16,64,1]]],
-['Tên kênh',0,[['nf','Font','select',F],['ns','Cỡ chữ (px)','range',10,40,1],['nlh','Giãn dòng (0 = mặc định)','range',0,2,.05],['nc','Màu','color'],['oc','Màu chủ kênh','color'],['mc','Màu moderator','color'],['sc','Màu thành viên','color'],['bd','Hiện huy hiệu','check'],['colon','Hiện dấu hai chấm sau tên','check']]],
-['Tin nhắn',1,[['mf','Font','select',F],['ms','Cỡ chữ (px)','range',10,40,1],['mlh','Giãn dòng (0 = mặc định)','range',0,2,.05],['mls','Giãn chữ (px)','range',-2,5,.1],['mcol','Màu','color'],['nl','Xuống dòng sau tên','check']]],
-['Giờ',0,[['ts','Hiện giờ','check'],['tf','Font','select',F],['tsz','Cỡ chữ (px)','range',8,30,1],['tlh','Giãn dòng (0 = mặc định)','range',0,2,.05],['tc','Màu','color']]],
+['Tên kênh',0,[['nf','Font','select',F],['ns','Cỡ chữ (px)','range',10,40,1],['nw','Độ dày chữ (400 thường, 700 đậm)','range',100,900,100],['nlh','Giãn dòng (0 = mặc định)','range',0,2,.05],['nc','Màu','color'],['oc','Màu chủ kênh','color'],['mc','Màu moderator','color'],['sc','Màu thành viên','color'],['bd','Hiện huy hiệu','check'],['colon','Hiện dấu hai chấm sau tên','check']]],
+['Tin nhắn',1,[['mf','Font','select',F],['ms','Cỡ chữ (px)','range',10,40,1],['mw','Độ dày chữ (400 thường, 700 đậm)','range',100,900,100],['mlh','Giãn dòng (0 = mặc định)','range',0,2,.05],['mls','Giãn chữ (px)','range',-2,5,.1],['mcol','Màu','color'],['nl','Xuống dòng sau tên','check']]],
+['Giờ',0,[['ts','Hiện giờ','check'],['tf','Font','select',F],['tsz','Cỡ chữ (px)','range',8,30,1],['tw','Độ dày chữ (400 thường, 700 đậm)','range',100,900,100],['tlh','Giãn dòng (0 = mặc định)','range',0,2,.05],['tc','Màu','color']]],
 ['Nền',1,[['bgc','Màu nền chung','color'],['bgo','Độ mờ nền chung (%)','range',0,100,1],['bars','Dùng thanh bên trái thay nền','check'],['mbg','Nền tin nhắn thường','color'],['obg','Nền tin nhắn chủ kênh','color'],['mobg','Nền tin nhắn moderator','color'],['sbg','Nền tin nhắn thành viên','color'],['mop','Độ mờ nền tin nhắn (%, 0 = trong suốt)','range',0,100,1],['rad','Bo góc (px)','range',0,24,1],['gap','Khoảng cách tin nhắn (px)','range',0,16,1],['pad','Padding (px)','range',0,16,1]]],
-['Super Chat, thành viên',0,[['p1f','Dòng 1: font','select',F],['p1s','Dòng 1: cỡ chữ','range',10,40,1],['p1l','Dòng 1: giãn dòng (0 = mặc định)','range',0,2,.05],['p1c','Dòng 1: màu','color'],['p2f','Dòng 2: font','select',F],['p2s','Dòng 2: cỡ chữ','range',10,40,1],['p2l','Dòng 2: giãn dòng (0 = mặc định)','range',0,2,.05],['p2c','Dòng 2: màu','color'],['p3f','Nội dung: font','select',F],['p3s','Nội dung: cỡ chữ','range',10,40,1],['p3l','Nội dung: giãn dòng (0 = mặc định)','range',0,2,.05],['p3c','Nội dung: màu','color'],['sbgon','Hiện nền thành viên và Super Chat','check']]],
+['Super Chat, thành viên',0,[['p1f','Dòng 1: font','select',F],['p1s','Dòng 1: cỡ chữ','range',10,40,1],['p1w','Dòng 1: độ dày chữ','range',100,900,100],['p1l','Dòng 1: giãn dòng (0 = mặc định)','range',0,2,.05],['p1c','Dòng 1: màu','color'],['p2f','Dòng 2: font','select',F],['p2s','Dòng 2: cỡ chữ','range',10,40,1],['p2w','Dòng 2: độ dày chữ','range',100,900,100],['p2l','Dòng 2: giãn dòng (0 = mặc định)','range',0,2,.05],['p2c','Dòng 2: màu','color'],['p3f','Nội dung: font','select',F],['p3s','Nội dung: cỡ chữ','range',10,40,1],['p3w','Nội dung: độ dày chữ','range',100,900,100],['p3l','Nội dung: giãn dòng (0 = mặc định)','range',0,2,.05],['p3c','Nội dung: màu','color'],['sbgon','Hiện nền thành viên và Super Chat','check']]],
 ['Hiển thị',0,[['tick','Hiện thanh ticker Super Chat','check'],['all','Hiện mọi thứ ngoài ticker','check']]],
 ['Hiệu ứng',0,[['ain','Hiện dần (fade in)','check'],['ams','Thời gian hiện dần (ms)','range',0,2000,50],['aout','Xóa tin nhắn cũ (fade out)','check'],['wait','Thời gian chờ (giây)','range',1,120,1],['oms','Thời gian mờ dần (ms)','range',0,3000,50],['slide','Trượt vào','check'],['rev','Trượt ngược chiều','check']]]
 ];
-var base={outline:true,osz:1,ocl:'#000000',av:false,avs:28,nf:'Roboto',ns:20,nlh:0,nc:'#e0a8ff',oc:'#ffd54a',mc:'#6ee7a8',sc:'#5ec8ff',bd:true,colon:true,
-mf:'Roboto',ms:20,mlh:1.3,mls:0,mcol:'#ffffff',nl:false,ts:false,tf:'Roboto',tsz:14,tlh:0,tc:'#cccccc',
+var base={outline:true,osz:1,ocl:'#000000',av:false,avs:28,cf:'',cu:'',nf:'Roboto',ns:20,nw:700,nlh:0,nc:'#e0a8ff',oc:'#ffd54a',mc:'#6ee7a8',sc:'#5ec8ff',bd:true,colon:true,
+mf:'Roboto',ms:20,mw:700,mlh:1.3,mls:0,mcol:'#ffffff',nl:false,ts:false,tf:'Roboto',tsz:14,tw:400,tlh:0,tc:'#cccccc',
 bgc:'#000000',bgo:0,bars:false,mbg:'#000000',obg:'#000000',mobg:'#000000',sbg:'#000000',mop:0,rad:6,gap:4,pad:2,
-p1f:'Roboto',p1s:18,p1l:0,p1c:'#ffffff',p2f:'Roboto',p2s:16,p2l:0,p2c:'#ffffff',p3f:'Roboto',p3s:18,p3l:0,p3c:'#ffffff',sbgon:true,
+p1f:'Roboto',p1s:18,p1l:0,p1w:700,p1c:'#ffffff',p2f:'Roboto',p2s:16,p2l:0,p2w:700,p2c:'#ffffff',p3f:'Roboto',p3s:18,p3l:0,p3w:400,p3c:'#ffffff',sbgon:true,
 tick:false,all:true,ain:true,ams:300,aout:false,wait:30,oms:500,slide:false,rev:false};
 var presets={
 'Twitch trong suốt':{},
-'Hộp nền mờ':{mop:55,rad:10,pad:6,gap:6,outline:false},
+'Hộp nền mờ':{mw:500,mop:55,rad:10,pad:6,gap:6,outline:false},
 'Thanh bên trái':{bars:true,mbg:'#9146ff',obg:'#ffd54a',mobg:'#6ee7a8',sbg:'#5ec8ff',pad:4,rad:0,osz:1},
-'Tối giản':{ns:16,ms:16,outline:true,osz:.5,nc:'#cccccc',bd:false,ain:false}
+'Tối giản':{ns:16,ms:16,mw:400,nw:500,outline:true,osz:.5,nc:'#cccccc',bd:false,ain:false}
 };
 var S=Object.assign({},base),els={};
 var ui=document.getElementById('ui'),out=document.getElementById('out'),pv=document.getElementById('pv');
@@ -114,7 +117,7 @@ sec.forEach(function(s){
   var lab=document.createElement('label');lab.textContent=c[1];lab.htmlFor='i_'+k;row.appendChild(lab);
   var inp;
   if(c[2]=='select'){inp=document.createElement('select');c[3].forEach(function(o){var op=document.createElement('option');op.textContent=o;inp.appendChild(op)})}
-  else{inp=document.createElement('input');inp.type=c[2]=='check'?'checkbox':c[2];if(c[2]=='range'){inp.min=c[3];inp.max=c[4];inp.step=c[5]}}
+  else{inp=document.createElement('input');inp.type=c[2]=='check'?'checkbox':c[2];if(c[2]=='range'){inp.min=c[3];inp.max=c[4];inp.step=c[5]}if(c[2]=='text')inp.placeholder=c[3]||''}
   inp.id='i_'+k;row.appendChild(inp);
   if(c[2]=='range'){var v=document.createElement('span');v.className='v';row.appendChild(v);inp._v=v}
   d.appendChild(row);els[k]=[inp,c[2]];
@@ -132,9 +135,10 @@ function shadow(){
 function rules(m,yt){
  var r='';
  function R(sel,a){a=a.filter(Boolean);if(a.length)r+=sel+' {\n'+a.map(function(b){return '  '+b+' !important;'}).join('\n')+'\n}\n\n'}
- function T(sel,f,s,l,c,ls){R(sel,['font-family: "'+f+'", "Segoe UI", Arial, sans-serif','font-size: '+s+'px',l>0&&'line-height: '+l,c&&'color: '+c,ls!==undefined&&'letter-spacing: '+ls+'px'])}
+ function FN(f){return f===CUSTOM?(S.cf||'Roboto'):f}
+ function T(sel,f,s,l,c,ls,w){R(sel,['font-family: "'+FN(f)+'", "Segoe UI", Arial, sans-serif','font-size: '+s+'px',w&&'font-weight: '+w,l>0&&'line-height: '+l,c&&'color: '+c,ls!==undefined&&'letter-spacing: '+ls+'px'])}
  var fonts={};['nf','mf','tf','p1f','p2f','p3f'].forEach(function(k){fonts[S[k]]=1});
- if(yt)for(var f in fonts)if(['Roboto','Inter','Poppins','Montserrat','Nunito','Open Sans','Oswald'].indexOf(f)>-1)r+='@import url("https://fonts.googleapis.com/css2?family='+f.replace(/ /g,'+')+':wght@400;700&display=swap");\n';
+ var imp='',ff='',cu=(S.cu||'').replace(/["\\\s<>]/g,''),cn=FN(CUSTOM).replace(/["\\<>]/g,'');for(var f in fonts){if(f===CUSTOM){if(/\.(woff2?|ttf|otf)(\?.*)?$/i.test(cu))ff+='@font-face { font-family: "'+cn+'"; src: url("'+cu+'"); font-weight: 100 900; font-display: swap; }\n';else if(cu)imp+='@import url("'+cu+'");\n';else imp+='@import url("https://fonts.googleapis.com/css2?family='+cn.replace(/ /g,'+')+':wght@400;700&display=swap");\n'}else if(W[f])imp+='@import url("https://fonts.googleapis.com/css2?family='+f.replace(/ /g,'+')+':wght@'+W[f]+'&display=swap");\n'}r+=imp+ff;
  if(yt)r+='\n';
  if(yt){
   R('html, body',['background: '+hexA(S.bgc,S.bgo)]);
@@ -153,15 +157,15 @@ function rules(m,yt){
  R(m.msg+'[author-type="member"]',bg(S.sbg));
  R(m.av,[S.av?'display: block':'display: none','width: '+S.avs+'px','height: '+S.avs+'px','margin-right: 6px']);
  if(yt)R('#author-photo img',['width: 100%','height: 100%']);
- T(m.name,S.nf,S.ns,S.nlh,S.nc);
+ T(m.name,S.nf,S.ns,S.nlh,S.nc,undefined,S.nw);
  R(m.name,['text-shadow: '+shadow()]);
  R(m.owner,['color: '+S.oc]);R(m.mod,['color: '+S.mc]);R(m.mem,['color: '+S.sc]);
  if(!S.bd)R(m.bdg,['display: none']);
  if(S.colon)R(m.chip+'::after',['content: ":"']);
- T(m.text,S.mf,S.ms,S.mlh,S.mcol,S.mls);
+ T(m.text,S.mf,S.ms,S.mlh,S.mcol,S.mls,S.mw);
  R(m.text,['text-shadow: '+shadow(),S.nl&&'display: block']);
- if(S.ts){T(m.tm,S.tf,S.tsz,S.tlh,S.tc);R(m.tm,['text-shadow: '+shadow()])}else R(m.tm,['display: none']);
- T(m.p1,S.p1f,S.p1s,S.p1l,S.p1c);T(m.p2,S.p2f,S.p2s,S.p2l,S.p2c);T(m.p3,S.p3f,S.p3s,S.p3l,S.p3c);
+ if(S.ts){T(m.tm,S.tf,S.tsz,S.tlh,S.tc,undefined,S.tw);R(m.tm,['text-shadow: '+shadow()])}else R(m.tm,['display: none']);
+ T(m.p1,S.p1f,S.p1s,S.p1l,S.p1c,undefined,S.p1w);T(m.p2,S.p2f,S.p2s,S.p2l,S.p2c,undefined,S.p2w);T(m.p3,S.p3f,S.p3s,S.p3l,S.p3c,undefined,S.p3w);
  R(m.p1+', '+m.p2+', '+m.p3,['text-shadow: '+shadow()]);
  if(!S.sbgon)R(m.sbgs,['background: transparent','--yt-live-chat-paid-message-primary-color: transparent']);
  if(S.ain||S.slide||S.aout){

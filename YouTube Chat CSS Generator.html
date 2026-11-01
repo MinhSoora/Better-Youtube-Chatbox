@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>YouTube Chat CSS Generator</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#f5f4f8;--card:#fff;--tx:#1d1b26;--mut:#6b6880;--bd:#dcd9e6;--ac:#9146ff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14131a;--card:#1d1b26;--tx:#ecebf3;--mut:#a09db5;--bd:#34314a}}
+:root[data-theme="dark"]{--bg:#14131a;--card:#1d1b26;--tx:#ecebf3;--mut:#a09db5;--bd:#34314a}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{padding:20px 16px 8px;max-width:1150px;margin:auto}
+h1{margin:0;font-size:22px}header p{margin:4px 0 0;color:var(--mut)}
+main{max-width:1150px;margin:auto;padding:12px 16px 40px;display:grid;gap:16px;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr)}
+@media(max-width:860px){main{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px}
+h2{font-size:15px;margin:0 0 10px}
+details{border-top:1px solid var(--bd);padding:6px 0}
+summary{cursor:pointer;font-weight:600;padding:4px 0}
+.presets{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+button{font:inherit;cursor:pointer;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:8px;padding:7px 12px}
+button.p{background:var(--ac);border-color:var(--ac);color:#fff}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:4px 0}
+.row label{flex:1;font-size:14px}.row .v{width:40px;text-align:right;color:var(--mut);font-size:12px}
+.row input[type=range]{width:44%}.row input[type=color]{width:44px;height:28px;border:none;background:none;padding:0}
+select,textarea{font:inherit;background:var(--bg);color:var(--tx);border:1px solid var(--bd);border-radius:8px;padding:6px;max-width:48%}
+.sticky{position:sticky;top:calc(env(safe-area-inset-top,0px) + 8px);align-self:start;display:grid;gap:16px}
+#pv{height:430px;overflow:hidden;border-radius:10px;padding:8px;display:flex;flex-direction:column;background:linear-gradient(135deg,#ff4fa3,#6b3fd4 55%,#1fb6ff)}
+#pv.g2{background:linear-gradient(160deg,#16243a,#2c5a3d 60%,#0d1117)}
+#pv.g3{background:#00b140}
+#pv .tick{display:flex;gap:6px;margin-bottom:6px}
+#pv .tick span{padding:3px 10px;border-radius:14px;font:12px sans-serif;color:#fff;background:#1565c0}
+#pv .tick span+span{background:#e62117}
+#pv .list{flex:1;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden}
+#pv .msg{display:flex;gap:6px;align-items:flex-start;overflow-wrap:anywhere}
+#pv .av{width:24px;height:24px;border-radius:50%;background:#fff7;flex:none}
+#pv .tm{margin-right:.4em}#pv .chip{margin-right:.3em}
+#pv .bd{display:inline-block;width:.8em;height:.8em;border-radius:2px;background:#e33;margin-left:3px}
+#pv .paid,#pv .mem{margin:4px 0;padding:6px 10px;border-radius:4px;background:#1565c0}
+#pv .mem{background:#0f9d58}
+textarea{width:100%;max-width:100%;height:230px;font:12px/1.4 ui-monospace,Menlo,Consolas,monospace;resize:vertical}
+ol{margin:0;padding-left:20px;color:var(--mut);font-size:13px}
+.bar{display:flex;gap:8px;align-items:center;margin-top:8px}.bar span{color:var(--mut);font-size:13px}
+</style>
+</head>
+<body>
+<header>
+<h1>YouTube Chat CSS Generator</h1>
+<p>Dựa trên bộ cài đặt của Septapus Chat v2.0. Đã tự ẩn dòng đăng nhập để chat (Sign in to chat), ô nhập chat và header.</p>
+</header>
+<main>
+<section class="card">
+<h2>Cài đặt</h2>
+<div class="presets" id="presets"></div>
+<div id="ui"></div>
+</section>
+<section class="sticky">
+<div class="card">
+<h2>Xem trước</h2>
+<div class="row"><label>Nền xem trước</label>
+<select id="bgsel"><option value="">Hồng tím</option><option value="g2">Game tối</option><option value="g3">Green screen</option></select>
+<button id="play">Chạy hiệu ứng</button></div>
+<div id="pv"></div>
+</div>
+<div class="card">
+<h2>CSS cho OBS</h2>
+<textarea id="out" readonly></textarea>
+<div class="bar"><button class="p" id="copy">Sao chép CSS</button><span id="st"></span></div>
+</div>
+<div class="card">
+<h2>Cách dùng</h2>
+<ol>
+<li>Mở YouTube Studio, vào Phát trực tiếp, bấm Popout chat và sao chép URL (dạng youtube.com/live_chat?is_popout=1&amp;v=…).</li>
+<li>Trong OBS: Add, Browser Source, dán URL, đặt Width 400 và Height 600.</li>
+<li>Xóa CSS mặc định trong ô Custom CSS, dán CSS ở trên rồi bấm OK.</li>
+</ol>
+</div>
+</section>
+</main>
+<script>
+var F=['Roboto','Inter','Poppins','Montserrat','Nunito','Open Sans','Oswald','Arial','Segoe UI'];
+var sec=[
+['Chữ và viền',1,[['outline','Hiện viền chữ','check'],['osz','Độ dày viền (px)','range',0,4,.5],['ocl','Màu viền','color']]],
+['Avatar',0,[['av','Hiện avatar','check'],['avs','Cỡ avatar (px)','range',16,64,1]]],
+['Tên kênh',0,[['nf','Font','select',F],['ns','Cỡ chữ (px)','range',10,40,1],['nlh','Giãn dòng (0 = mặc định)','range',0,2,.05],['nc','Màu','color'],['oc','Màu chủ kênh','color'],['mc','Màu moderator','color'],['sc','Màu thành viên','color'],['bd','Hiện huy hiệu','check'],['colon','Hiện dấu hai chấm sau tên','check']]],
+['Tin nhắn',1,[['mf','Font','select',F],['ms','Cỡ chữ (px)','range',10,40,1],['mlh','Giãn dòng (0 = mặc định)','range',0,2,.05],['mls','Giãn chữ (px)','range',-2,5,.1],['mcol','Màu','color'],['nl','Xuống dòng sau tên','check']]],
+['Giờ',0,[['ts','Hiện giờ','check'],['tf','Font','select',F],['tsz','Cỡ chữ (px)','range',8,30,1],['tlh','Giãn dòng (0 = mặc định)','range',0,2,.05],['tc','Màu','color']]],
+['Nền',1,[['bgc','Màu nền chung','color'],['bgo','Độ mờ nền chung (%)','range',0,100,1],['bars','Dùng thanh bên trái thay nền','check'],['mbg','Nền tin nhắn thường','color'],['obg','Nền tin nhắn chủ kênh','color'],['mobg','Nền tin nhắn moderator','color'],['sbg','Nền tin nhắn thành viên','color'],['mop','Độ mờ nền tin nhắn (%, 0 = trong suốt)','range',0,100,1],['rad','Bo góc (px)','range',0,24,1],['gap','Khoảng cách tin nhắn (px)','range',0,16,1],['pad','Padding (px)','range',0,16,1]]],
+['Super Chat, thành viên',0,[['p1f','Dòng 1: font','select',F],['p1s','Dòng 1: cỡ chữ','range',10,40,1],['p1l','Dòng 1: giãn dòng (0 = mặc định)','range',0,2,.05],['p1c','Dòng 1: màu','color'],['p2f','Dòng 2: font','select',F],['p2s','Dòng 2: cỡ chữ','range',10,40,1],['p2l','Dòng 2: giãn dòng (0 = mặc định)','range',0,2,.05],['p2c','Dòng 2: màu','color'],['p3f','Nội dung: font','select',F],['p3s','Nội dung: cỡ chữ','range',10,40,1],['p3l','Nội dung: giãn dòng (0 = mặc định)','range',0,2,.05],['p3c','Nội dung: màu','color'],['sbgon','Hiện nền thành viên và Super Chat','check']]],
+['Hiển thị',0,[['tick','Hiện thanh ticker Super Chat','check'],['all','Hiện mọi thứ ngoài ticker','check']]],
+['Hiệu ứng',0,[['ain','Hiện dần (fade in)','check'],['ams','Thời gian hiện dần (ms)','range',0,2000,50],['aout','Xóa tin nhắn cũ (fade out)','check'],['wait','Thời gian chờ (giây)','range',1,120,1],['oms','Thời gian mờ dần (ms)','range',0,3000,50],['slide','Trượt vào','check'],['rev','Trượt ngược chiều','check']]]
+];
+var base={outline:true,osz:1,ocl:'#000000',av:false,avs:28,nf:'Roboto',ns:20,nlh:0,nc:'#e0a8ff',oc:'#ffd54a',mc:'#6ee7a8',sc:'#5ec8ff',bd:true,colon:true,
+mf:'Roboto',ms:20,mlh:1.3,mls:0,mcol:'#ffffff',nl:false,ts:false,tf:'Roboto',tsz:14,tlh:0,tc:'#cccccc',
+bgc:'#000000',bgo:0,bars:false,mbg:'#000000',obg:'#000000',mobg:'#000000',sbg:'#000000',mop:0,rad:6,gap:4,pad:2,
+p1f:'Roboto',p1s:18,p1l:0,p1c:'#ffffff',p2f:'Roboto',p2s:16,p2l:0,p2c:'#ffffff',p3f:'Roboto',p3s:18,p3l:0,p3c:'#ffffff',sbgon:true,
+tick:false,all:true,ain:true,ams:300,aout:false,wait:30,oms:500,slide:false,rev:false};
+var presets={
+'Twitch trong suốt':{},
+'Hộp nền mờ':{mop:55,rad:10,pad:6,gap:6,outline:false},
+'Thanh bên trái':{bars:true,mbg:'#9146ff',obg:'#ffd54a',mobg:'#6ee7a8',sbg:'#5ec8ff',pad:4,rad:0,osz:1},
+'Tối giản':{ns:16,ms:16,outline:true,osz:.5,nc:'#cccccc',bd:false,ain:false}
+};
+var S=Object.assign({},base),els={};
+var ui=document.getElementById('ui'),out=document.getElementById('out'),pv=document.getElementById('pv');
+sec.forEach(function(s){
+ var d=document.createElement('details');if(s[1])d.open=true;
+ d.innerHTML='<summary>'+s[0]+'</summary>';
+ s[2].forEach(function(c){
+  var k=c[0],row=document.createElement('div');row.className='row';
+  var lab=document.createElement('label');lab.textContent=c[1];lab.htmlFor='i_'+k;row.appendChild(lab);
+  var inp;
+  if(c[2]=='select'){inp=document.createElement('select');c[3].forEach(function(o){var op=document.createElement('option');op.textContent=o;inp.appendChild(op)})}
+  else{inp=document.createElement('input');inp.type=c[2]=='check'?'checkbox':c[2];if(c[2]=='range'){inp.min=c[3];inp.max=c[4];inp.step=c[5]}}
+  inp.id='i_'+k;row.appendChild(inp);
+  if(c[2]=='range'){var v=document.createElement('span');v.className='v';row.appendChild(v);inp._v=v}
+  d.appendChild(row);els[k]=[inp,c[2]];
+  inp.addEventListener('input',function(){S[k]=c[2]=='check'?inp.checked:c[2]=='range'?parseFloat(inp.value):inp.value;render()});
+ });
+ ui.appendChild(d);
+});
+function sync(){for(var k in els){var e=els[k][0],t=els[k][1];if(t=='check')e.checked=S[k];else e.value=S[k];if(e._v)e._v.textContent=S[k]}}
+function hexA(h,p){var n=parseInt(h.slice(1),16);return 'rgba('+(n>>16&255)+','+(n>>8&255)+','+(n&255)+','+(p/100).toFixed(2)+')'}
+function shadow(){
+ if(!S.outline||S.osz<=0)return 'none';
+ var s=S.osz,c=S.ocl;
+ return [[-1,-1],[1,-1],[-1,1],[1,1],[0,-1],[0,1],[-1,0],[1,0]].map(function(d){return (d[0]*s)+'px '+(d[1]*s)+'px 0 '+c}).join(', ');
+}
+function rules(m,yt){
+ var r='';
+ function R(sel,a){a=a.filter(Boolean);if(a.length)r+=sel+' {\n'+a.map(function(b){return '  '+b+' !important;'}).join('\n')+'\n}\n\n'}
+ function T(sel,f,s,l,c,ls){R(sel,['font-family: "'+f+'", "Segoe UI", Arial, sans-serif','font-size: '+s+'px',l>0&&'line-height: '+l,c&&'color: '+c,ls!==undefined&&'letter-spacing: '+ls+'px'])}
+ var fonts={};['nf','mf','tf','p1f','p2f','p3f'].forEach(function(k){fonts[S[k]]=1});
+ if(yt)for(var f in fonts)if(['Roboto','Inter','Poppins','Montserrat','Nunito','Open Sans','Oswald'].indexOf(f)>-1)r+='@import url("https://fonts.googleapis.com/css2?family='+f.replace(/ /g,'+')+':wght@400;700&display=swap");\n';
+ if(yt)r+='\n';
+ if(yt){
+  R('html, body',['background: '+hexA(S.bgc,S.bgo)]);
+  R('yt-live-chat-renderer, yt-live-chat-item-list-renderer, #chat, #item-list, #item-scroller, #items',['background: transparent']);
+  R('#item-scroller',['overflow-y: hidden']);
+  r+='#item-scroller::-webkit-scrollbar { display: none !important; }\n\n';
+  r+='/* Ẩn dòng "Sign in to chat", ô nhập chat, header, tin chào mừng */\n';
+  R('yt-live-chat-header-renderer, yt-live-chat-message-input-renderer, yt-live-chat-restricted-participation-renderer, #input-panel, #panel-pages, yt-live-chat-viewer-engagement-message-renderer',['display: none']);
+ }
+ if(!S.tick)R(m.tick,['display: none']);
+ if(!S.all)R(m.list,['display: none']);
+ var bg=function(c){return S.bars?['background: transparent','border-left: 4px solid '+c]:['background: '+hexA(c,S.mop),'border-left: 0']};
+ R(m.msg,bg(S.mbg).concat(['border-radius: '+S.rad+'px','padding: '+S.pad+'px '+(S.pad+4)+'px','margin: '+S.gap+'px 0','color: '+S.mcol,'text-shadow: '+shadow()]));
+ R(m.msg+'[author-type="owner"]',bg(S.obg));
+ R(m.msg+'[author-type="moderator"]',bg(S.mobg));
+ R(m.msg+'[author-type="member"]',bg(S.sbg));
+ R(m.av,[S.av?'display: block':'display: none','width: '+S.avs+'px','height: '+S.avs+'px','margin-right: 6px']);
+ if(yt)R('#author-photo img',['width: 100%','height: 100%']);
+ T(m.name,S.nf,S.ns,S.nlh,S.nc);
+ R(m.name,['text-shadow: '+shadow()]);
+ R(m.owner,['color: '+S.oc]);R(m.mod,['color: '+S.mc]);R(m.mem,['color: '+S.sc]);
+ if(!S.bd)R(m.bdg,['display: none']);
+ if(S.colon)R(m.chip+'::after',['content: ":"']);
+ T(m.text,S.mf,S.ms,S.mlh,S.mcol,S.mls);
+ R(m.text,['text-shadow: '+shadow(),S.nl&&'display: block']);
+ if(S.ts){T(m.tm,S.tf,S.tsz,S.tlh,S.tc);R(m.tm,['text-shadow: '+shadow()])}else R(m.tm,['display: none']);
+ T(m.p1,S.p1f,S.p1s,S.p1l,S.p1c);T(m.p2,S.p2f,S.p2s,S.p2l,S.p2c);T(m.p3,S.p3f,S.p3s,S.p3l,S.p3c);
+ R(m.p1+', '+m.p2+', '+m.p3,['text-shadow: '+shadow()]);
+ if(!S.sbgon)R(m.sbgs,['background: transparent','--yt-live-chat-paid-message-primary-color: transparent']);
+ if(S.ain||S.slide||S.aout){
+  var x=S.rev?'80px':'-80px';
+  if(S.ain||S.slide)r+='@keyframes cfIn {\n  from { '+(S.ain?'opacity: 0; ':'')+(S.slide?'transform: translateX('+x+'); ':'')+'}\n  to { opacity: 1; transform: none; }\n}\n';
+  if(S.aout)r+='@keyframes cfOut {\n  to { opacity: 0; }\n}\n';
+  var an=[];if(S.ain||S.slide)an.push('cfIn '+S.ams+'ms ease-out');if(S.aout)an.push('cfOut '+S.oms+'ms linear '+S.wait+'s forwards');
+  r+='\n';R(m.anim,['animation: '+an.join(', ')]);
+ }
+ return r.trim();
+}
+var YT={msg:'yt-live-chat-text-message-renderer',av:'yt-live-chat-text-message-renderer #author-photo',chip:'yt-live-chat-text-message-renderer yt-live-chat-author-chip',name:'yt-live-chat-text-message-renderer #author-name',owner:'#author-name.owner',mod:'#author-name.moderator',mem:'#author-name.member',bdg:'yt-live-chat-author-badge-renderer',text:'yt-live-chat-text-message-renderer #message',tm:'#timestamp',
+ p1:'yt-live-chat-paid-message-renderer #author-name, yt-live-chat-membership-item-renderer #header-primary-text',p2:'yt-live-chat-paid-message-renderer #purchase-amount, yt-live-chat-membership-item-renderer #header-subtext',p3:'yt-live-chat-paid-message-renderer #message',
+ sbgs:'yt-live-chat-paid-message-renderer, yt-live-chat-paid-message-renderer #card, yt-live-chat-paid-message-renderer #header, yt-live-chat-paid-message-renderer #content, yt-live-chat-membership-item-renderer, yt-live-chat-membership-item-renderer #card, yt-live-chat-membership-item-renderer #header',
+ tick:'yt-live-chat-ticker-renderer',list:'yt-live-chat-item-list-renderer',anim:'yt-live-chat-text-message-renderer, yt-live-chat-paid-message-renderer, yt-live-chat-membership-item-renderer'};
+var PV={msg:'#pv .msg',av:'#pv .av',chip:'#pv .chip',name:'#pv .nm',owner:'#pv .nm.owner',mod:'#pv .nm.moderator',mem:'#pv .nm.member',bdg:'#pv .bd',text:'#pv .tx',tm:'#pv .tm',
+ p1:'#pv .pn, #pv .mp',p2:'#pv .pa, #pv .ms',p3:'#pv .pm',sbgs:'#pv .paid, #pv .mem',tick:'#pv .tick',list:'#pv .list',anim:'#pv .msg, #pv .paid, #pv .mem'};
+var msgs=[['','iopred','Lorem ipsum'],['','Barbara','dolor sit amet'],['moderator','Hùng Mod','Mọi người nhớ follow kênh nhé'],['member','Thu Hà','Giọng helium dễ thương quá'],['owner','Streamer','Cảm ơn mọi người đã ghé xem'],['','Minh Khoa','Tin nhắn dài để kiểm tra xuống dòng: ut enim ad minim veniam, quis nostrud exercitation ullamco laboris']];
+var st=document.createElement('style');document.head.appendChild(st);
+function build(){
+ var h='<div class="tick"><span>$5.00</span><span>$500.00</span></div><div class="list">';
+ msgs.slice(0,4).forEach(function(m){h+=msg(m)});
+ h+='<div class="mem"><div class="mp">NEW SPONSOR!</div><div class="ms">Welcome Sunlis!</div></div>';
+ msgs.slice(4).forEach(function(m){h+=msg(m)});
+ h+='<div class="paid"><div class="pn">iopred</div><div class="pa">$5.00</div><div class="pm">labore est nostrud cillum labore in minim</div></div></div>';
+ pv.innerHTML=h;
+}
+function msg(m){return '<div class="msg" author-type="'+m[0]+'"><span class="av"></span><div><span class="tm">12:00</span><span class="chip"><span class="nm '+m[0]+'">'+m[1]+'</span><span class="bd"></span></span><span class="tx">'+m[2]+'</span></div></div>'}
+function render(){out.value=rules(YT,true);st.textContent=rules(PV,false)}
+var pr=document.getElementById('presets');
+Object.keys(presets).forEach(function(n){var b=document.createElement('button');b.textContent=n;b.onclick=function(){S=Object.assign({},base,presets[n]);sync();render();build()};pr.appendChild(b)});
+document.getElementById('bgsel').onchange=function(e){pv.className=e.target.value};
+document.getElementById('play').onclick=build;
+document.getElementById('copy').onclick=function(){
+ var s=document.getElementById('st');
+ function ok(){s.textContent='Đã sao chép!';setTimeout(function(){s.textContent=''},2000)}
+ function fb(){out.select();try{document.execCommand('copy');ok()}catch(e){s.textContent='Hãy chọn và sao chép thủ công'}}
+ try{navigator.clipboard.writeText(out.value).then(ok,fb)}catch(e){fb()}
+};
+sync();render();build();
+</script>
+</body>
+</html>
